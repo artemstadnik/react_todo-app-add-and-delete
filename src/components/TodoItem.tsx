@@ -1,26 +1,26 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React from 'react';
-import classNames from 'classnames';
-import { Todo } from '../types/Todo';
 
-interface Props {
+import React from 'react';
+import { Todo } from '../types/Todo';
+import classNames from 'classnames';
+
+type Props = {
   todo: Todo;
-  isDeleting: boolean;
-  onDelete?: () => void;
-  isTemp?: boolean;
-}
+  onDeleteTodo?: (id: number) => void;
+  loading?: boolean;
+};
 
 export const TodoItem: React.FC<Props> = ({
   todo,
-  isDeleting,
-  onDelete,
-  isTemp = false,
+  loading,
+  onDeleteTodo = () => {},
 }) => {
   return (
     <div
       data-cy="Todo"
       className={classNames('todo', { completed: todo.completed })}
+      key={todo.id}
     >
       <label className="todo__status-label">
         <input
@@ -28,8 +28,6 @@ export const TodoItem: React.FC<Props> = ({
           type="checkbox"
           className="todo__status"
           checked={todo.completed}
-          disabled={isTemp}
-          readOnly
         />
       </label>
 
@@ -37,23 +35,20 @@ export const TodoItem: React.FC<Props> = ({
         {todo.title}
       </span>
 
-      {!isTemp && (
-        <button
-          type="button"
-          className="todo__remove"
-          data-cy="TodoDelete"
-          onClick={onDelete}
-          disabled={isDeleting}
-        >
-          ×
-        </button>
-      )}
+      {/* Remove button appears only on hover */}
+      <button
+        type="button"
+        className="todo__remove"
+        data-cy="TodoDelete"
+        onClick={() => onDeleteTodo(todo.id)}
+      >
+        ×
+      </button>
 
+      {/* overlay will cover the todo while it is being deleted or updated */}
       <div
         data-cy="TodoLoader"
-        className={classNames('modal overlay', {
-          'is-active': isDeleting || isTemp,
-        })}
+        className={classNames('modal overlay', { 'is-active': loading })}
       >
         <div className="modal-background has-background-white-ter" />
         <div className="loader" />
